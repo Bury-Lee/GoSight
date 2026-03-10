@@ -1,0 +1,93 @@
+{
+    "config_name": "default",
+    "base_config": {
+        "output": "./output",
+        "concurrency": 10,
+        "delay": 100,
+        "random_delay": 500,
+        "timeout": 30,
+        "max_retries": 3,
+        "retry_delay": 1000,
+        "backoff_policy": 2,
+        "max_log_size": 100
+    },
+    "log": {
+        "log_format": "json",
+        "log_level": "info",
+        "log_path": "./logs/app.log",
+        "is_add_source": false
+    },
+    "web": {
+        "black_list": [
+            "10.0.0.0/8",
+            "192.168.0.0/16",
+            "127.0.0.1",
+            "localhost",
+            ".internal"
+        ]
+    },
+    "agents": [
+        {
+            "proxy": "http://proxy1.example.com:8080",
+            "proxy_rotation_strategy": "round_robin",
+            "id": "agent-001",
+            "ip": "1.2.3.4",
+            "headers": {
+                "User-Agent": ["Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.0"],
+                "Accept": ["text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"],
+                "Accept-Language": ["zh-CN,zh;q=0.9,en;q=0.8"],
+                "Accept-Encoding": ["gzip, deflate, br"],
+                "Connection": ["keep-alive"]
+            },
+            "cookies": [
+                {
+                    "Name": "session_id",
+                    "Value": "abc123",
+                    "Path": "/",
+                    "Domain": "example.com"
+                }
+            ]
+        },
+        {
+            "proxy": "http://proxy2.example.com:8080",
+            "proxy_rotation_strategy": "random",
+            "id": "agent-002",
+            "ip": "5.6.7.8",
+            "headers": {
+                "User-Agent": ["Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36"]
+            },
+            "cookies": []
+        }
+    ],
+    "use_on": "*",
+    "custom_domains": {
+        "example.com": {
+            "output": "./output/example",
+            "concurrency": 5,
+            "delay": 200,
+            "random_delay": 1000,
+            "timeout": 60,
+            "max_retries": 5,
+            "retry_delay": 2000,
+            "backoff_policy": 1.5,
+            "max_log_size": 50
+        },
+        "api.example.com": {
+            "output": "./output/api",
+            "concurrency": 20,
+            "delay": 50,
+            "random_delay": 200,
+            "timeout": 10,
+            "max_retries": 2,
+            "retry_delay": 500,
+            "backoff_policy": 0,
+            "max_log_size": 200
+        }
+    },
+    "render": {
+        "enable": true,
+        "engine": "chromium",
+        "headless": true,
+        "wait_until": "networkidle"
+    }
+}

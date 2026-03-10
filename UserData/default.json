@@ -1,0 +1,67 @@
+{
+  "root": null,
+  "root_name": "",
+  "config_name": "default",
+  "base_config": {
+    "output": "./output",
+    "concurrency": 10,
+    "delay": 100,
+    "random_delay": 500,
+    "timeout": 30,
+    "max_retries": 3,
+    "retry_delay": 1000,
+    "backoff_policy": 2,
+    "max_log_size": 100
+  },
+  "web": {
+    "black_list": [
+      "10.0.0.0/8",
+      "192.168.0.0/16",
+      "127.0.0.1",
+      "localhost",
+      ".internal"
+    ]
+  },
+  "agents": {
+    "proxy": "",
+    "proxy_rotation_strategy": "",
+    "id": "",
+    "ip": "",
+    "headers": null,
+    "cookies": null
+  },
+  "req": "",
+  "use_on": "*",
+  "custom_domains": {
+    "api.example.com": {
+      "output": "./output/api",
+      "concurrency": 20,
+      "delay": 50,
+      "random_delay": 200,
+      "timeout": 10,
+      "max_retries": 2,
+      "retry_delay": 500,
+      "backoff_policy": 0,
+      "max_log_size": 200
+    },
+    "example.com": {
+      "output": "./output/example",
+      "concurrency": 5,
+      "delay": 200,
+      "random_delay": 1000,
+      "timeout": 60,
+      "max_retries": 5,
+      "retry_delay": 2000,
+      "backoff_policy": 0,
+      "max_log_size": 50
+    }
+  },
+  "render": {
+    "enable": true,
+    "engine": "chromium",
+    "headless": true,
+    "wait_until": "networkidle"
+  },
+  "next": null,
+  "next_name": null
+}
