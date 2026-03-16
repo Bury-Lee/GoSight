@@ -29,6 +29,7 @@ type WebConfig struct {
 	NextName      []string               `json:"next_name"`      //下一级配置名
 }
 
+// 这一段以后迁移到global去
 const UserDataPath = "./userdata/"
 
 var Config ConfigEnter
@@ -36,11 +37,6 @@ var DefaultWebConfigs WebConfig
 
 var WebConfigList map[string]*WebConfig = make(map[string]*WebConfig)
 var nameList map[string]bool = make(map[string]bool)
-
-func init() {
-	// 注册所有可能通过 interface{} 传输的类型（如果有的话）
-	// gob.Register(...)
-}
 
 func Load() error {
 	return errors.New("TODO:读取自定义配置")

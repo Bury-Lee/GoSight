@@ -6,6 +6,7 @@ import (
 	"net/http"
 )
 
+// 完成后迁移到main.go,在配置中决定是否启用前端
 func main() {
 	// 路由注册
 	http.HandleFunc("/", homeHandler)
