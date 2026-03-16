@@ -1,9 +1,10 @@
 // log/enter.go
 // 日志模块
-package logService
+package logs
 
 import (
 	"GoSight/config"
+	"GoSight/globel"
 	"fmt"
 	"io"
 	"log/slog"
@@ -11,9 +12,6 @@ import (
 	"path"
 	"time"
 )
-
-var Logger *slog.Logger
-var LogFile *os.File
 
 func InitLog() { //TODO:改良日志格式
 	Time := "2006-01-02"
@@ -23,7 +21,7 @@ func InitLog() { //TODO:改良日志格式
 		fmt.Printf("无法创建日志目录: %v\n", err)
 		return
 	}
-	LogFile, err = os.OpenFile(path.Join(config.Config.Log.LogPath, fileName), os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	globel.LogFile, err = os.OpenFile(path.Join(config.Config.Log.LogPath, fileName), os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		fmt.Printf("无法打开日志文件: %v\n", err)
 		return
@@ -35,7 +33,7 @@ func InitLog() { //TODO:改良日志格式
 		AddSource: config.Config.Log.IsAddSource,
 	}
 	var handler slog.Handler
-	multiWriter := io.MultiWriter(os.Stdout, LogFile)
+	multiWriter := io.MultiWriter(os.Stdout, globel.LogFile)
 
 	switch config.Config.Log.LogFormat {
 	case "json":
@@ -53,6 +51,6 @@ func InitLog() { //TODO:改良日志格式
 		}
 	}
 
-	Logger = slog.New(handler)
-	slog.SetDefault(Logger) //设置默认服务器
+	globel.Logger = slog.New(handler)
+	slog.SetDefault(globel.Logger) //设置默认服务器
 }

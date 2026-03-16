@@ -24,7 +24,7 @@ type RenderConfig struct {
 	WaitUntil string `json:"wait_until"` // "load", "domcontentloaded", "networkidle"
 }
 
-type webConfig struct {
+type BlackConfig struct {
 	BlackList []string `json:"black_list"` //黑名单,包含IP或域名,格式为"IP/域名"的前缀
 }
 

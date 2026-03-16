@@ -30,8 +30,6 @@
     "headers": null,
     "cookies": null
   },
-  "req": "",
-  "use_on": "*",
   "custom_domains": {
     "api.example.com": {
       "output": "./output/api",

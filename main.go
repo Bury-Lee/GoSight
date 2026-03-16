@@ -2,8 +2,11 @@ package main
 
 import (
 	"GoSight/config"
-	"GoSight/logService"
+	"GoSight/globel"
+	"GoSight/logs"
+	"GoSight/pkg/request"
 	"fmt"
+	"net/http"
 )
 
 func main() {
@@ -13,8 +16,40 @@ func main() {
 		return
 	}
 
-	logService.InitLog()
+	logs.InitLog()
 
-	defer config.DefaultWebConfigs.SaveAsGob()
-	defer logService.LogFile.Close() // 确保主程序退出时关闭日志文件
+	defer config.DefaultWebConfigs.SaveAsJson()
+	defer globel.LogFile.Close() // 确保主程序退出时关闭日志文件
+
+	//debug
+	myConfig := &config.WebConfig{
+		RootName:   "root_job",
+		ConfigName: "spider_v1",
+		Config: config.BaseConfig{
+			Output:      "/data/output.json",
+			Concurrency: 10,
+			Delay:       1000, // 1秒
+			Timeout:     30,   // 30秒
+			MaxRetries:  3,
+		},
+		Web: config.BlackConfig{ // 注意：webConfig 是小写开头，如果在包外访问需要确保它是导出的或者在同一个包内
+			BlackList: []string{"192.168.1.1", "bad-site.com"},
+		},
+		Agents: config.Agent{
+			Headers: http.Header{
+				"User-Agent": []string{"MyCustomSpider/1.0"},
+			},
+		},
+		Render: config.RenderConfig{
+			Enable:   true,
+			Engine:   "chromium",
+			Headless: true,
+		},
+		Next:     []*config.WebConfig{},
+		NextName: []string{},
+	}
+	targetURL := "http://127.0.0.1:8081/web/login.html"
+	result1, result2, err := request.RequestWebPage(targetURL, myConfig)
+	fmt.Print(string(result1), result2)
+	///debug
 }

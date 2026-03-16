@@ -17,18 +17,16 @@ type ConfigEnter struct {
 }
 
 type WebConfig struct {
-	Root          *WebConfig             `json:"root"`
-	RootName      string                 `json:"root_name"`
-	ConfigName    string                 `json:"config_name"`
-	Config        BaseConfig             `json:"base_config"`
-	Web           webConfig              `json:"web"`
-	Agents        Agent                  `json:"agents"`
-	Req           string                 `json:"req"`
-	UseOn         string                 `json:"use_on"`
-	CustomDomains map[string]*BaseConfig `json:"custom_domains"`
-	Render        RenderConfig           `json:"render"`
-	Next          []*WebConfig           `json:"next"`
-	NextName      []string               `json:"next_name"`
+	Root          *WebConfig             `json:"root"`           //根配置
+	RootName      string                 `json:"root_name"`      //根配置名
+	ConfigName    string                 `json:"config_name"`    //配置名
+	Config        BaseConfig             `json:"base_config"`    //基础配置
+	Web           BlackConfig            `json:"web"`            //爬取网站配置
+	Agents        Agent                  `json:"agents"`         //代理配置
+	CustomDomains map[string]*BaseConfig `json:"custom_domains"` //自定义域名配置
+	Render        RenderConfig           `json:"render"`         //渲染配置
+	Next          []*WebConfig           `json:"next"`           //下一级配置
+	NextName      []string               `json:"next_name"`      //下一级配置名
 }
 
 const UserDataPath = "./userdata/"
@@ -52,7 +50,7 @@ func Add(name string, webConfig *WebConfig) error {
 	var err error
 	if exit, _ := nameList[name]; exit {
 		name = name + "(1)"
-		err = errors.New("配置名已存在,自动起名为" + name)
+		err = errors.New("配置名已存在,自动起名为: " + name)
 	}
 
 	if webConfig == nil {
@@ -130,103 +128,6 @@ func LoadFromJSON(filename string) (*WebConfig, error) {
 			continue // 跳过不存在的子配置
 		}
 		webConf.Next = append(webConf.Next, nextConf)
-	}
-
-	// 注册到全局列表
-	if webConf.ConfigName != "" {
-		WebConfigList[webConf.ConfigName] = &webConf
-		nameList[webConf.ConfigName] = true
-	}
-
-	return &webConf, nil
-}
-
-// ==================== GOB 实现 ====================
-
-// SaveAsGob 将配置保存为 gob 二进制文件
-// 自动处理：如果 Root 为 nil 或 RootName 为空，绑定到 DefaultWebConfigs
-func (c *WebConfig) SaveAsGob() error { //所有的配置最顶级都一定是default,所以使用default来保存是没有问题的
-	if c.ConfigName == "" {
-		return errors.New("配置名不能为空")
-	}
-
-	// 确保目录存在
-	if err := os.MkdirAll(UserDataPath, 0755); err != nil {
-		return fmt.Errorf("创建目录失败: %w", err)
-	}
-
-	// 自动绑定 Root 到 default（如果未设置）
-	if c.Root == nil || c.RootName == "" {
-		c.Root = &DefaultWebConfigs
-		c.RootName = "default"
-	}
-
-	// 创建文件
-	filename := path.Join(UserDataPath, c.ConfigName+".gob")
-	file, err := os.Create(filename)
-	if err != nil {
-		return fmt.Errorf("创建文件失败: %w", err)
-	}
-	defer file.Close()
-
-	// 创建编码器并编码
-	encoder := gob.NewEncoder(file)
-	if err := encoder.Encode(c); err != nil {
-		return fmt.Errorf("gob 编码失败: %w", err)
-	}
-
-	// 同时更新内存中的配置列表
-	WebConfigList[c.ConfigName] = c
-	nameList[c.ConfigName] = true
-
-	return nil
-}
-
-// LoadFromGob 从 gob 文件加载配置
-// 自动处理：如果 Root 为 nil，根据 RootName 绑定，若 RootName 也无效则绑定到 default
-func LoadFromGob(filename string) (*WebConfig, error) {
-	// 读取文件
-	data, err := os.ReadFile(filename)
-	if err != nil {
-		return nil, fmt.Errorf("读取文件失败: %w", err)
-	}
-
-	// 解码
-	var webConf WebConfig
-	decoder := gob.NewDecoder(bytes.NewReader(data))
-	if err := decoder.Decode(&webConf); err != nil {
-		return nil, fmt.Errorf("gob 解码失败: %w", err)
-	}
-
-	// 自动绑定 Root
-	if webConf.Root == nil {
-		if webConf.RootName == "" {
-			// RootName 也为空，绑定到 default
-			webConf.Root = &DefaultWebConfigs
-			webConf.RootName = "default"
-		} else {
-			// 尝试根据 RootName 查找
-			err, rootConf := GetWebConf(webConf.RootName)
-			if err != nil {
-				// 找不到，绑定到 default
-				webConf.Root = &DefaultWebConfigs
-				webConf.RootName = "default"
-			} else {
-				webConf.Root = rootConf
-			}
-		}
-	}
-
-	// 重新绑定 Next 指针（因为 gob 解码后指针关系需要重建）
-	if len(webConf.NextName) > 0 {
-		webConf.Next = make([]*WebConfig, 0, len(webConf.NextName))
-		for _, name := range webConf.NextName {
-			err, nextConf := GetWebConf(name)
-			if err != nil {
-				continue // 跳过不存在的子配置
-			}
-			webConf.Next = append(webConf.Next, nextConf)
-		}
 	}
 
 	// 注册到全局列表
