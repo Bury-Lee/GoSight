@@ -1,12 +1,7 @@
 {
-  "log": {
-    "log_format": "json",
-    "log_level": "info",
-    "log_path": "./logs/crawler.log",
-    "is_add_source": true
-  },
+  "root": null,
   "root_name": "",
-  "config_name": "default",
+  "config_name": "default_spider",
   "base_config": {
     "output": "./data/output.json",
     "concurrency": 5,
@@ -32,30 +27,48 @@
     "id": "agent_001",
     "ip": "1.2.3.4",
     "headers": {
-      "User-Agent": [
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
-      ],
       "Accept-Language": [
         "zh-CN,zh;q=0.9,en;q=0.8"
       ],
       "Referer": [
         "https://www.google.com/"
+      ],
+      "User-Agent": [
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
       ]
     },
     "cookies": [
       {
-        "name": "session_id",
-        "value": "abc123xyz",
-        "domain": ".example.com",
-        "path": "/",
-        "secure": true,
-        "httpOnly": true
+        "Name": "session_id",
+        "Value": "abc123xyz",
+        "Quoted": false,
+        "Path": "/",
+        "Domain": ".example.com",
+        "Expires": "0001-01-01T00:00:00Z",
+        "RawExpires": "",
+        "MaxAge": 0,
+        "Secure": true,
+        "HttpOnly": true,
+        "SameSite": 0,
+        "Partitioned": false,
+        "Raw": "",
+        "Unparsed": null
       },
       {
-        "name": "user_pref",
-        "value": "dark_mode",
-        "domain": "example.com",
-        "path": "/settings"
+        "Name": "user_pref",
+        "Value": "dark_mode",
+        "Quoted": false,
+        "Path": "/settings",
+        "Domain": "example.com",
+        "Expires": "0001-01-01T00:00:00Z",
+        "RawExpires": "",
+        "MaxAge": 0,
+        "Secure": false,
+        "HttpOnly": false,
+        "SameSite": 0,
+        "Partitioned": false,
+        "Raw": "",
+        "Unparsed": null
       }
     ]
   },
@@ -88,5 +101,7 @@
     "engine": "chromium",
     "headless": true,
     "wait_until": "networkidle"
-  }
+  },
+  "next": null,
+  "next_name": null
 }

@@ -4,7 +4,7 @@ package logs
 
 import (
 	"GoSight/config"
-	"GoSight/globel"
+	global "GoSight/globel"
 	"fmt"
 	"io"
 	"log/slog"
@@ -21,7 +21,7 @@ func InitLog() { //TODO:改良日志格式
 		fmt.Printf("无法创建日志目录: %v\n", err)
 		return
 	}
-	globel.LogFile, err = os.OpenFile(path.Join(config.Config.Log.LogPath, fileName), os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	global.LogFile, err = os.OpenFile(path.Join(config.Config.Log.LogPath, fileName), os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		fmt.Printf("无法打开日志文件: %v\n", err)
 		return
@@ -33,7 +33,7 @@ func InitLog() { //TODO:改良日志格式
 		AddSource: config.Config.Log.IsAddSource,
 	}
 	var handler slog.Handler
-	multiWriter := io.MultiWriter(os.Stdout, globel.LogFile)
+	multiWriter := io.MultiWriter(os.Stdout, global.LogFile)
 
 	switch config.Config.Log.LogFormat {
 	case "json":
@@ -51,6 +51,6 @@ func InitLog() { //TODO:改良日志格式
 		}
 	}
 
-	globel.Logger = slog.New(handler)
-	slog.SetDefault(globel.Logger) //设置默认服务器
+	global.Logger = slog.New(handler)
+	slog.SetDefault(global.Logger) //设置默认服务器
 }

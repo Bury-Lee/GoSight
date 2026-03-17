@@ -1,4 +1,4 @@
-package globel
+package global
 
 import (
 	"log/slog"
