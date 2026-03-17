@@ -5,6 +5,32 @@ import (
 	"net/http"
 )
 
+// ConfigEnter 主配置入口结构体
+// 参数:Log - 日志配置项
+// 说明:作为整个爬虫系统的配置入口，包含日志等基础配置
+type ConfigEnter struct {
+	Log Log `json:"log"`
+}
+
+// WebConfig Web配置结构体
+// 参数:Root - 根配置指针,RootName - 根配置名称,ConfigName - 配置名称,Config - 基础配置
+// 参数:Web - 爬取网站配置,Agents - 代理配置,CustomDomains - 自定义域名配置映射
+// 参数:Render - 渲染配置,Next - 下一级配置列表,NextName - 下一级配置名称列表
+// 说明:支持层级配置结构，可继承父配置，支持自定义域名和代理设置
+type WebConfig struct {
+	Root          *WebConfig             `json:"-"`              //根配置
+	RootName      string                 `json:"root_name"`      //根配置名
+	ConfigName    string                 `json:"config_name"`    //配置名
+	Config        BaseConfig             `json:"base_config"`    //基础配置
+	Web           BlackConfig            `json:"web"`            //爬取网站配置
+	Agents        Agent                  `json:"agents"`         //代理配置
+	CustomDomains map[string]*BaseConfig `json:"custom_domains"` //自定义域名配置
+	Render        RenderConfig           `json:"render"`         //渲染配置
+	Next          []*WebConfig           `json:"next"`           //下一级配置
+	NextName      []string               `json:"next_name"`      //下一级配置名
+	Reprocess     string                 `josn:"reprocess"`      //正则化处理,为""时不启用,为nil时向上一级寻找
+}
+
 type BaseConfig struct { //配置项
 	Output        string `json:"output"`         //输出文件路径
 	Concurrency   int    `json:"concurrency"`    //并发数

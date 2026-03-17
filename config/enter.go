@@ -12,31 +12,6 @@ import (
 // ConfigPath 默认配置文件路径
 const ConfigPath = "config.json"
 
-// ConfigEnter 主配置入口结构体
-// 参数:Log - 日志配置项
-// 说明:作为整个爬虫系统的配置入口，包含日志等基础配置
-type ConfigEnter struct {
-	Log Log `json:"log"`
-}
-
-// WebConfig Web配置结构体
-// 参数:Root - 根配置指针,RootName - 根配置名称,ConfigName - 配置名称,Config - 基础配置
-// 参数:Web - 爬取网站配置,Agents - 代理配置,CustomDomains - 自定义域名配置映射
-// 参数:Render - 渲染配置,Next - 下一级配置列表,NextName - 下一级配置名称列表
-// 说明:支持层级配置结构，可继承父配置，支持自定义域名和代理设置
-type WebConfig struct {
-	Root          *WebConfig             `json:"-"`              //根配置
-	RootName      string                 `json:"root_name"`      //根配置名
-	ConfigName    string                 `json:"config_name"`    //配置名
-	Config        BaseConfig             `json:"base_config"`    //基础配置
-	Web           BlackConfig            `json:"web"`            //爬取网站配置
-	Agents        Agent                  `json:"agents"`         //代理配置
-	CustomDomains map[string]*BaseConfig `json:"custom_domains"` //自定义域名配置
-	Render        RenderConfig           `json:"render"`         //渲染配置
-	Next          []*WebConfig           `json:"next"`           //下一级配置
-	NextName      []string               `json:"next_name"`      //下一级配置名
-}
-
 // UserDataPath 用户数据存储路径
 // 说明:用于存储用户配置文件，后续将迁移到global包中管理
 const UserDataPath = "./userdata/"
@@ -45,9 +20,9 @@ const UserDataPath = "./userdata/"
 // 说明:存储系统的主配置信息，全局共享使用
 var Config ConfigEnter
 
-// DefaultWebConfigs 默认Web配置实例
+// DefaultWebConfig 默认Web配置实例
 // 说明:作为所有Web配置的默认模板，提供基础配置项
-var DefaultWebConfigs WebConfig
+var DefaultWebConfig WebConfig
 
 // WebConfigList Web配置名称映射表
 // 说明:通过配置名称快速查找对应的Web配置实例，支持配置复用
@@ -180,10 +155,19 @@ func (c *ConfigEnter) Init(filepath string) error {
 	if err != nil {
 		return err
 	}
-	json.Unmarshal(conf, c)                  //给基本配置赋值
-	json.Unmarshal(conf, &DefaultWebConfigs) //给默认配置赋值
+	json.Unmarshal(conf, c)                 //给基本配置赋值
+	json.Unmarshal(conf, &DefaultWebConfig) //给默认配置赋值
+	//加载用户设置,进行增量更新
+	tem, err := LoadFromJSON(UserDataPath + DefaultWebConfig.ConfigName + ".json")
+	if tem != nil {
+		DefaultWebConfig = *tem
+		DefaultWebConfig.Root = nil
+		DefaultWebConfig.RootName = ""
+	}
 	return nil
 }
+
+//TODO:一键清空.nextname,清理不存在的配置
 
 // SaveAsJson 将Web配置保存为JSON文件
 // 参数:c - Web配置实例指针
@@ -200,6 +184,8 @@ func (c *WebConfig) SaveAsJson() error {
 	}
 	return nil
 }
+
+//TODO:写一个全量继承函数,把上一级的所有变量继承下来,由此得到非委托的全量更新
 
 // LoadFromJSON 从JSON文件读取并绑定Web配置
 // 参数:filename - JSON配置文件路径
@@ -223,14 +209,14 @@ func LoadFromJSON(filename string) (*WebConfig, error) {
 	// 1. 确定 Root 节点
 	if webConf.RootName == "" {
 		// 情况 A: 未指定 RootName，直接使用默认配置
-		webConf.Root = &DefaultWebConfigs
+		webConf.Root = &DefaultWebConfig
 		webConf.RootName = "default"
 	} else {
 		// 情况 B: 指定了 RootName，尝试获取
 		err, root := GetWebConf(webConf.RootName)
 		if err != nil || root == nil {
 			// 情况 B-1: 获取失败或不存在，降级为默认配置
-			webConf.Root = &DefaultWebConfigs
+			webConf.Root = &DefaultWebConfig
 			webConf.RootName = "default"
 			// 可选：这里可以加一行日志记录降级行为，但不强制要求
 		} else {
