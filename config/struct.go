@@ -21,14 +21,14 @@ type WebConfig struct {
 	Root          *WebConfig             `json:"-"`              //根配置
 	RootName      string                 `json:"root_name"`      //根配置名
 	ConfigName    string                 `json:"config_name"`    //配置名
-	Config        BaseConfig             `json:"base_config"`    //基础配置
+	BaseConfig    BaseConfig             `json:"base_config"`    //基础配置
 	Web           BlackConfig            `json:"web"`            //爬取网站配置
 	Agents        Agent                  `json:"agents"`         //代理配置
 	CustomDomains map[string]*BaseConfig `json:"custom_domains"` //自定义域名配置
-	Render        RenderConfig           `json:"render"`         //渲染配置
+	RenderConfig  RenderConfig           `json:"render"`         //渲染配置
 	Next          []*WebConfig           `json:"next"`           //下一级配置
 	NextName      []string               `json:"next_name"`      //下一级配置名
-	Reprocess     string                 `josn:"reprocess"`      //正则化处理,为""时不启用,为nil时向上一级寻找
+	Reprocess     string                 `josn:"reprocess"`      //正则化处理,为""时不启用
 }
 
 type BaseConfig struct { //配置项
@@ -84,3 +84,8 @@ func (Log *Log) GetLogLevel() slog.Level {
 		return slog.LevelInfo
 	}
 }
+
+var EmptyWebConfig WebConfig
+var EmptyBaseConfig BaseConfig
+var EmptyAgent Agent
+var EmptyRenderConfig RenderConfig
